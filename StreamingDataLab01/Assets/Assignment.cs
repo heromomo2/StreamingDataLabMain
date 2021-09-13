@@ -7,7 +7,7 @@ Pixel RPG characters created by Sean Browning.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using System.I0;
+using System.IO;
 
 
 
@@ -77,30 +77,48 @@ static public class AssignmentPart1
 
     static public void SavePartyButtonPressed()
     {
-        
+
+        using (StreamWriter sw = new StreamWriter( Application.dataPath + Path.DirectorySeparatorChar + "Party.txt"))
+
         foreach (PartyCharacter pc in GameContent.partyCharacters)
 
         {
+           //sw.WriteLine(" L O V E");
+           Debug.Log("PC class id == " + pc.classID + "PC health == " + pc.health );
+           sw.WriteLine(pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom + ",");
+          // Debug.Log(");
 
-            Debug.Log("PC class id == " + pc.classID);
+        };
 
-        }
-
-
-
-        using (StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + "Party.txt"))
+        
+       /* using (StreamWriter sw = new StreamWriter( Application.dataPath + Path.DirectorySeparatorChar + "Party.txt"))
 
         {
 
-            sw.WriteLine("asdvsdkfhsdjf");
+            sw.WriteLine(" L O V E");
 
-        }
+        }*/
     }
 
     static public void LoadPartyButtonPressed()
     {
 
-        //GameContent.partyCharacters.Clear();
+         GameContent.partyCharacters.Clear();
+
+
+       StreamReader sr = new StreamReader( Application.dataPath + Path.DirectorySeparatorChar + "Party.txt");
+
+        string line;
+
+        while ((line = sr.ReadLine()) != null)
+        {
+            string[] csv = line.Split(',');
+            Debug.Log(csv[0]);
+
+            PartyCharacter pc = new PartyCharacter(int.Parse(csv[0]), int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]), int.Parse(csv[5]) );
+            GameContent.partyCharacters.AddLast(pc);
+        }
+
 
         GameContent.RefreshUI();
 
