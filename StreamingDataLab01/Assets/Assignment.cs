@@ -180,6 +180,13 @@ Good luck, journey well.
 
 static public class AssignmentPart2
 {
+    // LinkedList<string> m_ListOfParty;
+    static string m_PartyName = "you";
+    public enum Signifier 
+    {
+        PartyCharacterSaveDataSignifier = 0,
+        PartyCharacterEquipmentSaveDataSignifier = 1
+    }
 
     static public void GameStart()
     {
@@ -205,6 +212,22 @@ static public class AssignmentPart2
 
     static public void SavePartyButtonPressed()
     {
+        m_PartyName = GameContent.GetPartyNameFromInput();/// get the name from GameContent
+        //Debug.Log("PartyName: "+ m_PartyName);
+        using (StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + m_PartyName + ".txt" ))
+
+            foreach (PartyCharacter pc in GameContent.partyCharacters)
+            {
+                //Debug.Log("PC class id == " + pc.classID + "PC health == " + pc.health);
+                sw.WriteLine((int)Signifier.PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom + ",");
+
+                foreach (int equip in pc.equipment)
+                {
+                    sw.WriteLine((int)Signifier.PartyCharacterEquipmentSaveDataSignifier + "," + equip);
+                };
+
+            };
+
         GameContent.RefreshUI();
     }
 
