@@ -225,7 +225,30 @@ static public class AssignmentPart2
 
     static public void LoadPartyDropDownChanged(string selectedName)
     {
+        GameContent.partyCharacters.Clear();
 
+        StreamReader sr = new StreamReader(Application.dataPath + "/text" + Path.DirectorySeparatorChar + selectedName + ".txt");
+
+        string line;
+
+        while ((line = sr.ReadLine()) != null)
+        {
+            string[] csv = line.Split(',');
+            Debug.Log(csv[0]);
+            int signifierElement = int.Parse(csv[0]);
+            switch (signifierElement)
+            {
+                case (int)Signifier.PartyCharacterSaveDataSignifier :
+                    PartyCharacter pc = new PartyCharacter(int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]));
+                    GameContent.partyCharacters.AddLast(pc);
+                    break;
+
+                case (int)Signifier.PartyCharacterEquipmentSaveDataSignifier:
+                    GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[1]));
+                    break;
+            }
+
+        }
         GameContent.RefreshUI();
     }
 
