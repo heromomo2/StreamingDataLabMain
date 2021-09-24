@@ -180,7 +180,7 @@ Good luck, journey well.
 
 static public class AssignmentPart2
 {
-    // LinkedList<string> m_ListOfParty;
+    static List<string> m_ListOfParty = new List<string>();
     static string m_PartyName = "you";
     public enum Signifier 
     {
@@ -190,23 +190,42 @@ static public class AssignmentPart2
 
     static public void GameStart()
     {
-
+        string[] filePaths = Directory.GetFiles(Application.dataPath +"/text" ); //@"C:\Users\Owner\Documents\GitHub\StreamingDataLabMain\StreamingDataLab01\Assets"
+        foreach (string filePath in filePaths)
+        {
+            // use the foreach loop to go through the entire 
+            // array one element at a time write out 
+            // the full path and file name of each of the 
+            // elements in the array
+            //Debug.Log(filePaths);
+            //string result = Path.GetFileNameWithoutExtension(filePath);
+            //Debug.Log(result);
+            string extension = Path.GetExtension(filePath);
+            if (extension == ".txt")
+            {
+                string result = Path.GetFileNameWithoutExtension(filePath);
+                m_ListOfParty.Add(result);
+                //Debug.Log(result);
+            }
+        }
         GameContent.RefreshUI();
-
+ 
     }
 
     static public List<string> GetListOfPartyNames()
     {
-        return new List<string>() {
-            "sample 1",
-            "sample 2",
-            "sample 3"
-        };
+        //return new List<string>() {
+        //    "sample 1",
+        //    "sample 2",
+        //    "sample 3"
+        //};
 
+        return m_ListOfParty;
     }
 
     static public void LoadPartyDropDownChanged(string selectedName)
     {
+
         GameContent.RefreshUI();
     }
 
@@ -214,7 +233,7 @@ static public class AssignmentPart2
     {
         m_PartyName = GameContent.GetPartyNameFromInput();/// get the name from GameContent
         //Debug.Log("PartyName: "+ m_PartyName);
-        using (StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + m_PartyName + ".txt" ))
+        using (StreamWriter sw = new StreamWriter(Application.dataPath+ "/text" + Path.DirectorySeparatorChar + m_PartyName + ".txt" ))
 
             foreach (PartyCharacter pc in GameContent.partyCharacters)
             {
