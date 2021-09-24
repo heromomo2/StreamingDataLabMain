@@ -180,8 +180,9 @@ Good luck, journey well.
 
 static public class AssignmentPart2
 {
-    static List<string> m_ListOfParty = new List<string>();
+    public static List<string> m_ListOfParty = new List<string>();
     static string m_PartyName = "you";
+    public static string m_selectedName;
     public enum Signifier 
     {
         PartyCharacterSaveDataSignifier = 0,
@@ -197,7 +198,7 @@ static public class AssignmentPart2
             // array one element at a time write out 
             // the full path and file name of each of the 
             // elements in the array
-            //Debug.Log(filePaths);
+            Debug.Log(filePath);
             //string result = Path.GetFileNameWithoutExtension(filePath);
             //Debug.Log(result);
             string extension = Path.GetExtension(filePath);
@@ -226,6 +227,8 @@ static public class AssignmentPart2
     static public void LoadPartyDropDownChanged(string selectedName)
     {
         GameContent.partyCharacters.Clear();
+        m_selectedName = selectedName;
+        //.Log("m_selectedName :" + m_selectedName);
 
         StreamReader sr = new StreamReader(Application.dataPath + "/text" + Path.DirectorySeparatorChar + selectedName + ".txt");
 
@@ -269,7 +272,6 @@ static public class AssignmentPart2
                 };
 
             };
-
         GameContent.RefreshUI();
     }
 
@@ -280,8 +282,37 @@ static public class AssignmentPart2
 
     static public void DeletePartyButtonPressed()
     {
+        Debug.Log("m_selectedName :" + m_selectedName);
+        //static bool FileUtil = DeleteFileOrDirectory(Application.dataPath + "/text" + Path.DirectorySeparatorChar + m_selectedName + ".txt");
+        File.Delete(Application.dataPath + "/text" + Path.DirectorySeparatorChar + m_selectedName + ".txt");
+        File.Delete(Application.dataPath + "/text" + Path.DirectorySeparatorChar + m_selectedName + ".txt.meta");
+        //GameContent.RefreshUI();
+
+
+        string[] filePaths = Directory.GetFiles(Application.dataPath + "/text"); //@"C:\Users\Owner\Documents\GitHub\StreamingDataLabMain\StreamingDataLab01\Assets"
+        foreach (string filePath in filePaths)
+        {
+            // use the foreach loop to go through the entire 
+            // array one element at a time write out 
+            // the full path and file name of each of the 
+            // elements in the array
+            Debug.Log(filePath);
+            //string result = Path.GetFileNameWithoutExtension(filePath);
+            //Debug.Log(result);
+            string extension = Path.GetExtension(filePath);
+            if (extension == ".txt")
+            {
+                string result = Path.GetFileNameWithoutExtension(filePath);
+                m_ListOfParty.Clear();
+                m_ListOfParty.Add(result);
+                //Debug.Log(result);
+            }
+        }
+        GameContent.RefreshUI();
 
     }
+
+
 
 }
 
