@@ -198,7 +198,7 @@ static public class AssignmentPart2
             // array one element at a time write out 
             // the full path and file name of each of the 
             // elements in the array
-            Debug.Log(filePath);
+            //Debug.Log(filePath);
             //string result = Path.GetFileNameWithoutExtension(filePath);
             //Debug.Log(result);
             string extension = Path.GetExtension(filePath);
@@ -259,20 +259,33 @@ static public class AssignmentPart2
     {
         m_PartyName = GameContent.GetPartyNameFromInput();/// get the name from GameContent
         //Debug.Log("PartyName: "+ m_PartyName);
-        using (StreamWriter sw = new StreamWriter(Application.dataPath+ "/text" + Path.DirectorySeparatorChar + m_PartyName + ".txt" ))
 
-            foreach (PartyCharacter pc in GameContent.partyCharacters)
-            {
-                //Debug.Log("PC class id == " + pc.classID + "PC health == " + pc.health);
-                sw.WriteLine((int)Signifier.PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom + ",");
 
-                foreach (int equip in pc.equipment)
+        if (m_ListOfParty.Contains(m_PartyName) == true)
+        {
+            Debug.Log(" there is alright file with that name"+ m_PartyName);
+        }
+        else
+        {
+            Debug.Log("no file with that name" + m_PartyName);
+
+            using (StreamWriter sw = new StreamWriter(Application.dataPath + "/text" + Path.DirectorySeparatorChar + m_PartyName + ".txt"))
+
+                foreach (PartyCharacter pc in GameContent.partyCharacters)
                 {
-                    sw.WriteLine((int)Signifier.PartyCharacterEquipmentSaveDataSignifier + "," + equip);
-                };
+                    //Debug.Log("PC class id == " + pc.classID + "PC health == " + pc.health);
+                    sw.WriteLine((int)Signifier.PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom + ",");
 
-            };
-        GameContent.RefreshUI();
+                    foreach (int equip in pc.equipment)
+                    {
+                        sw.WriteLine((int)Signifier.PartyCharacterEquipmentSaveDataSignifier + "," + equip);
+                    };
+                };
+            UpDatePartyInfo();
+            GameContent.RefreshUI();
+        }
+
+        
     }
 
     static public void NewPartyButtonPressed()
@@ -288,7 +301,14 @@ static public class AssignmentPart2
         File.Delete(Application.dataPath + "/text" + Path.DirectorySeparatorChar + m_selectedName + ".txt.meta");
         //GameContent.RefreshUI();
 
+        UpDatePartyInfo();
+        GameContent.RefreshUI();
 
+    }
+
+    static public void UpDatePartyInfo()
+    {
+        m_ListOfParty.Clear();
         string[] filePaths = Directory.GetFiles(Application.dataPath + "/text"); //@"C:\Users\Owner\Documents\GitHub\StreamingDataLabMain\StreamingDataLab01\Assets"
         foreach (string filePath in filePaths)
         {
@@ -296,23 +316,19 @@ static public class AssignmentPart2
             // array one element at a time write out 
             // the full path and file name of each of the 
             // elements in the array
-            Debug.Log(filePath);
+            //Debug.Log(filePath);
             //string result = Path.GetFileNameWithoutExtension(filePath);
             //Debug.Log(result);
             string extension = Path.GetExtension(filePath);
             if (extension == ".txt")
             {
                 string result = Path.GetFileNameWithoutExtension(filePath);
-                m_ListOfParty.Clear();
+
                 m_ListOfParty.Add(result);
                 //Debug.Log(result);
             }
         }
-        GameContent.RefreshUI();
-
     }
-
-
 
 }
 
