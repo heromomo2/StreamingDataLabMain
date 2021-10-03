@@ -193,43 +193,15 @@ static public class AssignmentPart2
 
     const string IndexFilePath = "indices.txt";
 
+    static string LastSelectedName;
+
 
 
     static public void GameStart()
     {
-       //S Debug.Log("Game Start");
+        Debug.Log("Game Start");
 
-        nameAndIndices = new LinkedList<NameAndIndex>();
-        if (File.Exists(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath))
-        {
-            StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath);
-
-            string line;
-            while ((line = sr.ReadLine()) != null)
-            {
-                Debug.Log(line);
-                string[] csv = line.Split(',');
-                int signifier = int.Parse(csv[0]);
-                if (signifier == LastUsedIndexIndexSignifier)
-                {
-                    lastIndexUsed = int.Parse(csv[1]);
-                }
-                else if (signifier == IndexAndNameSignifier)
-                {
-                    nameAndIndices.AddLast(new NameAndIndex(int.Parse(csv[1]), csv[2]));
-                }
-            }
-
-
-        }
-
-        partyNames = new List<string>();
-        foreach (NameAndIndex nameAndIndex in nameAndIndices)
-        {
-            partyNames.Add(nameAndIndex.name);
-        }
-
-        GameContent.RefreshUI();
+        ReadSaveIndexManagementFile();
 
     }
 
@@ -242,16 +214,21 @@ static public class AssignmentPart2
         //};
 
         return partyNames;
+        GameContent.RefreshUI();
     }
 
     static public void LoadPartyDropDownChanged(string selectedName)
     {
         GameContent.partyCharacters.Clear();
+
         int intdexToLoad = -1;
         foreach (NameAndIndex nameAndIndex in nameAndIndices)
         {
             if (nameAndIndex.name == selectedName)
+            {
                 intdexToLoad = nameAndIndex.index;
+                LastSelectedName = selectedName;
+            }  
         }
         StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + intdexToLoad + ".txt");
         string line;
@@ -271,8 +248,10 @@ static public class AssignmentPart2
                 GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[1]));
             }
         };
-        GameContent.RefreshUI();
+        
         Debug.Log("Load " + selectedName);
+        //Debug.Log("Load " + intdexToLoad);
+        GameContent.RefreshUI();
     }
 
     static public void SavePartyButtonPressed()
@@ -292,21 +271,27 @@ static public class AssignmentPart2
             SaveParty(Application.dataPath + Path.DirectorySeparatorChar + lastIndexUsed + ".txt");
             nameAndIndices.AddLast(new NameAndIndex(lastIndexUsed, GameContent.GetPartyNameFromInput()));
         }
-        GameContent.RefreshUI();
+        
         Debug.Log("saving");
         SaveIndexManagementFile();
+        ReadSaveIndexManagementFile();
+        GameContent.RefreshUI();
     }
 
     static public void NewPartyButtonPressed()
     {
         Debug.Log("Create new");
         SaveIndexManagementFile();
+        GameContent.RefreshUI();
     }
 
     static public void DeletePartyButtonPressed()
     {
         Debug.Log("DeleteCurrent");
-
+        RemoveIndexManagementFile();
+        SaveIndexManagementFile();
+        ReadSaveIndexManagementFile();
+        GameContent.RefreshUI();
     }
 
     static public void SaveIndexManagementFile()
@@ -314,13 +299,50 @@ static public class AssignmentPart2
         Debug.Log("SaveIndexManagement Funtion has been called");
         StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath);
         sw.WriteLine(LastUsedIndexIndexSignifier + "," + lastIndexUsed);
-         Debug.Log("1," + lastIndexUsed);
+         //Debug.Log("1," + lastIndexUsed);
         foreach (NameAndIndex nameAndIndex in nameAndIndices)
         {
             sw.WriteLine(IndexAndNameSignifier + "," + nameAndIndex.index + "," + nameAndIndex.name);
         }
         sw.Close();
     }
+
+    static public void ReadSaveIndexManagementFile()
+    {
+        nameAndIndices = new LinkedList<NameAndIndex>();
+        if (File.Exists(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath))
+        {
+            StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath);
+
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                //Debug.Log("line->: "+ line);
+                string[] csv = line.Split(',');
+                int signifier = int.Parse(csv[0]);
+                if (signifier == LastUsedIndexIndexSignifier)
+                {
+                    lastIndexUsed = int.Parse(csv[1]);
+                    Debug.Log("lastIndexUsed =" + lastIndexUsed);
+                }
+                else if (signifier == IndexAndNameSignifier)
+                {
+                    nameAndIndices.AddLast(new NameAndIndex(int.Parse(csv[1]), csv[2]));
+                }
+            }
+
+
+        }
+        partyNames = new List<string>();
+        foreach (NameAndIndex nameAndIndex in nameAndIndices)
+        {
+            partyNames.Add(nameAndIndex.name);
+        }
+
+        GameContent.RefreshUI();
+
+    }
+
     static public void SaveParty(string fileName)
     {
         Debug.Log("SaveParty Funtion  has been called");
@@ -341,6 +363,31 @@ static public class AssignmentPart2
         sw.Close();
     }
 
+
+    static public void RemoveIndexManagementFile()
+    {
+        //remove  the NameAnDIndex object
+        NameAndIndex tempObject = new NameAndIndex(90,"90");
+        
+
+        foreach (NameAndIndex nameAndIndex in nameAndIndices)
+        {
+
+            if (nameAndIndex.name == LastSelectedName)
+            {
+                tempObject = nameAndIndex;
+                break;
+            }
+        }
+        nameAndIndices.Remove(tempObject);
+
+        ///remove the file
+        File.Delete(Application.dataPath + Path.DirectorySeparatorChar + tempObject.index + ".txt");
+        GameContent.RefreshUI();
+
+    }
+
+
     public class NameAndIndex
     {
         public string name;
@@ -350,6 +397,14 @@ static public class AssignmentPart2
         {
             name = Name;
             index = Index;
+        }
+        public string GetName
+        {
+            get { return name; }
+        }
+        public int  GetIndex
+        {
+            get { return index; }
         }
     }
 
