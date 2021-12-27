@@ -388,6 +388,56 @@ static public class AssignmentPart2
     }
 
 
+    static public void SendOnScreenPartyToServerForSharing(NetWorkClient networkClient)
+    {
+        LinkedList<string> data = new LinkedList<string>();
+      
+
+        foreach (PartyCharacter pc in GameContent.partyCharacters)
+        {
+            Debug.Log("PC Class id ==" + pc.classID);
+            data.AddLast(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
+                + "," + pc.mana
+                + "," + pc.strength
+                + "," + pc.agility
+                + "," + pc.wisdom);
+            foreach (int equip in pc.equipment)
+            {
+                data.AddLast(PartyCharacterEquipmentSaveDataSignifier + "," + equip);
+            }
+        }
+
+        networkClient.SendMessageToHost(ClientToServerSignifiers.PartyTransferDataStart + "" );
+        foreach (string d in data) 
+        {
+            networkClient.SendMessageToHost(ClientToServerSignifiers.PartyTransferData+ "," +d);
+        }
+        networkClient.SendMessageToHost(ClientToServerSignifiers.PartyTransferDataEnd + "");
+    }
+
+
+    static public  void LoadPartyFromSharedFriend(LinkedList<string> data ) 
+    {
+        GameContent.partyCharacters.Clear();
+        foreach (string line in data) 
+        {
+            Debug.Log(line);
+            string[] csv = line.Split(',');
+            int signifier = int.Parse(csv[1]);
+            if (signifier == PartyCharacterSaveDataSignifier)
+            {
+                PartyCharacter pc = new PartyCharacter(int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]), int.Parse(csv[7]));
+                GameContent.partyCharacters.AddLast(pc);
+            }
+            else if (signifier == PartyCharacterEquipmentSaveDataSignifier)
+            {
+                GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[2]));
+            }
+        };
+        GameContent.RefreshUI();
+    }
+
+
     public class NameAndIndex
     {
         public string name;
